@@ -1,0 +1,29 @@
+version: '3'
+
+networks:
+  subnet:
+    driver: bridge
+
+services:
+
+  subserver:
+    container_name: subserver
+    image: registry.cn-beijing.aliyuncs.com/self-pub/subserver:latest
+    restart: always
+    tty: true
+    volumes:
+      - ./config.yaml:/app/config.yaml
+    networks:
+      - subnet
+    ports:
+      - "8008:8008"
+
+  subconverter:
+    container_name: subconverter
+    image: tindy2013/subconverter
+    restart: always
+    networks:
+      - subnet
+    tty: true
+    ports:
+      - "25500:25500"
