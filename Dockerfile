@@ -18,7 +18,7 @@ FROM build-stage AS run-test-stage
 RUN go test -v ./...
 
 # Deploy the application binary into a lean image
-FROM anjia0532/distroless.base-debian11 AS build-release-stage
+FROM m.daocloud.io/gcr.io/distroless/base-debian11 AS build-release-stage
 
 WORKDIR /app
 
