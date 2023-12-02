@@ -19,6 +19,12 @@
 
 # Go workspace file
 go.work
+.idea/
+
+# Vercel
+.vercel
 
 # curr
+.env
 config.yaml
+
