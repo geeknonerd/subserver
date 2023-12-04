@@ -87,7 +87,7 @@ func reqUrl(url string, method string, body io.Reader) (string, int, http.Header
 	return string(content), resp.StatusCode, resp.Header, nil
 }
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func Convert(w http.ResponseWriter, r *http.Request) {
 	//读取配置
 	//cnfPath := getCnfPath(CnfFileName)
 	//cnf := getCnf(cnfPath)

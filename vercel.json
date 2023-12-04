@@ -3,6 +3,10 @@
     {
       "src": "/convert",
       "dest": "/api/convert.go"
+    },
+    {
+      "src": "/check",
+      "dest": "/api/check.go"
     }
   ]
 }
