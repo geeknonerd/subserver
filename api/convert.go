@@ -102,7 +102,7 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 		//设置缓存
 		cache.Store("cnf", cnf)
 	} else {
-		*cnf = c.(Config)
+		*cnf = c.(*Config)
 	}
 	//检查配置
 	if cnf.Token == "" || cnf.ClashSubUrls == nil {
