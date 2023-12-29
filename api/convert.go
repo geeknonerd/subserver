@@ -27,7 +27,7 @@ type Config struct {
 	ClashSubUrls map[string]string `yaml:"CLASH_SUB_URLS"`
 }
 
-//getCnf 读取并解析yaml配置文件
+// getCnf 读取并解析yaml配置文件
 func getCnf(path string) Config {
 	cnf := Config{}
 	yamlFile, err := ioutil.ReadFile(path)
@@ -41,7 +41,7 @@ func getCnf(path string) Config {
 	return cnf
 }
 
-//getCnfPath 获取配置路径
+// getCnfPath 获取配置路径
 func getCnfPath(path string) string {
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -67,7 +67,7 @@ func getCnfByEnv() Config {
 	return cnf
 }
 
-//reqUrl 请求subconverter服务生成配置信息
+// reqUrl 请求subconverter服务生成配置信息
 func reqUrl(url string, method string, body io.Reader) (string, int, http.Header, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
@@ -95,11 +95,14 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 	//cnfPath := getCnfPath(CnfFileName)
 	//cnf := getCnf(cnfPath)
 	//读取缓存
-	cnf, ok := cache.Load("cnf")
+	cnf := new(Config)
+	c, ok := cache.Load("cnf")
 	if !ok {
-		cnf = getCnfByEnv()
+		*cnf = getCnfByEnv()
 		//设置缓存
 		cache.Store("cnf", cnf)
+	} else {
+		*cnf = c.(Config)
 	}
 	//检查配置
 	if cnf.Token == "" || cnf.ClashSubUrls == nil {
