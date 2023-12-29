@@ -104,7 +104,7 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 	} else {
         ptr, ok := c.(*Config)
         if ok {
-            cnf = *ptr
+            *cnf = ptr
         }
 	}
 	//检查配置
