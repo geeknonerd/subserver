@@ -17,6 +17,8 @@ import (
 
 const CnfFileName string = "config.yaml" //配置文件名
 
+var cache = sync.Map{} //缓存
+
 // Config 配置结构体
 type Config struct {
 	Token        string            `yaml:"TOKEN"`
@@ -91,7 +93,13 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 	//读取配置
 	//cnfPath := getCnfPath(CnfFileName)
 	//cnf := getCnf(cnfPath)
-	cnf := getCnfByEnv()
+	//读取缓存
+	cnf, ok := cache.Load("cnf")
+	if !ok {
+		cnf = getCnfByEnv()
+		//设置缓存
+		cache.Store("cnf", cnf)
+	} 
 	//检查配置
 	if cnf.Token == "" || cnf.ClashSubUrls == nil {
 		log.Fatalf("[error] Server config err: cnf=%v", cnf)
