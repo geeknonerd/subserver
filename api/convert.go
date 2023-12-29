@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 const CnfFileName string = "config.yaml" //配置文件名
@@ -99,7 +100,7 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 		cnf = getCnfByEnv()
 		//设置缓存
 		cache.Store("cnf", cnf)
-	} 
+	}
 	//检查配置
 	if cnf.Token == "" || cnf.ClashSubUrls == nil {
 		log.Fatalf("[error] Server config err: cnf=%v", cnf)
