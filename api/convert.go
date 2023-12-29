@@ -95,17 +95,14 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 	//cnfPath := getCnfPath(CnfFileName)
 	//cnf := getCnf(cnfPath)
 	//读取缓存
-	cnf := new(Config)
+	cnf := Config{}
 	c, ok := cache.Load("cnf")
 	if !ok {
-		*cnf = getCnfByEnv()
+		cnf = getCnfByEnv()
 		//设置缓存
 		cache.Store("cnf", cnf)
 	} else {
-        ptr, ok := c.(*Config)
-        if ok {
-            cnf = *ptr
-        }
+		cnf = c.(Config)
 	}
 	//检查配置
 	if cnf.Token == "" || cnf.ClashSubUrls == nil {
