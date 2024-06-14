@@ -226,10 +226,9 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 	//请求subconverter转换配置
 	convUrl := fmt.Sprintf("%s&url=%s&filename=Clash_%s.yaml",
 		cnf.ClashSubFmt, url.QueryEscape(subUrl), subType)
-	//下述缓存无效
 	//读取数据缓存
 	value, found := dataCache.Get(convUrl)
-	log.Printf("[info] dataCache: path=%s, found=%v", r.URL.String(), found)
+	//log.Printf("[info] dataCache: path=%s, found=%v", r.URL.String(), found)
 	var res ReqResItem
 	if found {
 		//使用缓存数据
@@ -238,9 +237,6 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 		//发送请求
 		log.Printf("[info] Req call reqUrl: path=%s", r.URL.String())
 		res = reqUrl(convUrl, "GET", nil)
-		dataCache.Set(convUrl, res, 22*time.Hour)
-		//_, found := dataCache.Get(convUrl)
-		//log.Printf("[debug] dataCache: found=%v", found)
 	}
 	if res.err != nil {
 		log.Printf("[warn] Req reqUrl err: path=%s, err=%v", r.URL.String(), res.err)
@@ -253,6 +249,12 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set(k, v[0])
 		}
 	}
+	//设置缓存
+	dataCache.Set(convUrl, res, 22*time.Hour)
+	//_, found := dataCache.Get(convUrl)
+	//log.Printf("[debug] dataCache: found=%v", found)
+
+	//接口返回
 	w.WriteHeader(res.status)
 	fmt.Fprintf(w, "%s", res.txt)
 }
