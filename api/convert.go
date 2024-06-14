@@ -229,7 +229,7 @@ func Convert(w http.ResponseWriter, r *http.Request) {
 	//下述缓存无效
 	//读取数据缓存
 	value, found := dataCache.Get(convUrl)
-	//log.Printf("[debug] dataCache: found=%v", found)
+	log.Printf("[info] dataCache: path=%s, found=%v", r.URL.String(), found)
 	var res ReqResItem
 	if found {
 		//使用缓存数据
