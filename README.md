@@ -30,7 +30,13 @@ touch .env
 ```shell
 TOKEN='xxx'
 CLASH_SUB_FMT='http://localhost:25500/sub?target=clash&new_name=true&insert=false&config=https%3A%2F%2Fraw.githubusercontent.com%2FACL4SSR%2FACL4SSR%2Fmaster%2FClash%2Fconfig%2FACL4SSR_Online_Full_MultiMode.ini&append_type=true&emoji=true&list=false&tfo=false&scv=false&fdn=true&sort=false&udp=true'
-CLASH_SUB_URLS='{"tag":"https://abc.com/subscribe"}'
+CLASH_SUB_URLS='{"a":"https://abc.com/subscribe"}'
+```
+
+Install vercel
+```shell
+# nvm use v18.12.1
+npm i -g vercel@latest
 ```
 
 Develop
