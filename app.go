@@ -12,9 +12,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const CnfFileName string = "config.yaml" //配置文件名
+
+var dataCache = NewCache()
 
 // Config 配置结构体
 type Config struct {
@@ -47,27 +50,34 @@ func getCnfPath(path string) string {
 	return cnfAbsPath
 }
 
-//reqUrl 请求subconverter服务生成配置信息
-func reqUrl(url string, method string, body io.Reader) (string, int, http.Header, error) {
+type ReqResItem struct {
+	txt     string
+	status  int
+	headers http.Header
+	err     error
+}
+
+// reqUrl 请求subconverter服务生成配置信息
+func reqUrl(url string, method string, body io.Reader) ReqResItem {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return "", -1, nil, errors.New(fmt.Sprintf("reqUrl NewRequest err: %v", err))
+		return ReqResItem{"", -1, nil, errors.New(fmt.Sprintf("reqUrl NewRequest err: %v", err))}
 	}
 	req.Header.Add("User-Agent", "ClashforWindows/0.19.23")
 	clt := http.Client{}
 	resp, err := clt.Do(req)
 	if err != nil {
-		return "", -1, nil, errors.New(fmt.Sprintf("reqUrl Do err: %v", err))
+		return ReqResItem{"", -1, nil, errors.New(fmt.Sprintf("reqUrl Do err: %v", err))}
 	}
 	defer resp.Body.Close()
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", -1, nil, errors.New(fmt.Sprintf("reqUrl ReadAll err: %v", err))
+		return ReqResItem{"", -1, nil, errors.New(fmt.Sprintf("reqUrl ReadAll err: %v", err))}
 	}
 	if resp.StatusCode != 200 {
-		return "", -1, nil, errors.New(fmt.Sprintf("reqUrl StatusCode not 200: url=%s, resp=%v", url, resp))
+		return ReqResItem{"", -1, nil, errors.New(fmt.Sprintf("reqUrl StatusCode not 200: url=%s, resp=%v", url, resp))}
 	}
-	return string(content), resp.StatusCode, resp.Header, nil
+	return ReqResItem{string(content), resp.StatusCode, resp.Header, nil}
 }
 
 func main() {
@@ -118,20 +128,37 @@ func main() {
 		//请求subconverter转换配置
 		convUrl := fmt.Sprintf("%s&url=%s&filename=Clash_%s.yaml",
 			cnf.ClashSubFmt, url.QueryEscape(subUrl), subType)
-		txt, status, headers, err := reqUrl(convUrl, "GET", nil)
-		if err != nil {
-			log.Printf("[warn] Req reqUrl err: path=%s, err=%v", r.URL.String(), err)
+		//读取数据缓存
+		value, found := dataCache.Get(convUrl)
+		//log.Printf("[info] dataCache: path=%s, found=%v", r.URL.String(), found)
+		var res ReqResItem
+		if found {
+			//使用缓存数据
+			res = value.(ReqResItem)
+		} else {
+			//发送请求
+			log.Printf("[info] Req call reqUrl: path=%s", r.URL.String())
+			res = reqUrl(convUrl, "GET", nil)
+		}
+		if res.err != nil {
+			log.Printf("[warn] Req reqUrl err: path=%s, err=%v", r.URL.String(), res.err)
 			http.Error(w, http.StatusText(http.StatusServiceUnavailable), http.StatusServiceUnavailable)
 			return
 		}
 		//去除不适合的头信息
-		for k, v := range headers {
+		for k, v := range res.headers {
 			if k != "Strict-Transport-Security" && k != "Content-Encoding" && k != "Vary" {
 				w.Header().Set(k, v[0])
 			}
 		}
-		w.WriteHeader(status)
-		fmt.Fprintf(w, "%s", txt)
+		//设置缓存
+		dataCache.Set(convUrl, res, 22*time.Hour)
+		//_, found := dataCache.Get(convUrl)
+		//log.Printf("[debug] dataCache: found=%v", found)
+
+		//接口返回
+		w.WriteHeader(res.status)
+		fmt.Fprintf(w, "%s", res.txt)
 	})
 	//运行服务
 	log.Println("[info] Start convert server ...")
