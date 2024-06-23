@@ -24,6 +24,7 @@ type Config struct {
 	Token        string            `yaml:"TOKEN"`
 	ClashSubFmt  string            `yaml:"CLASH_SUB_FMT"`
 	ClashSubUrls map[string]string `yaml:"CLASH_SUB_URLS"`
+	CacheHours   int               `yaml:"CACHE_HOURS"`
 }
 
 //getCnf 读取并解析yaml配置文件
@@ -152,7 +153,7 @@ func main() {
 			}
 		}
 		//设置缓存
-		dataCache.Set(convUrl, res, 22*time.Hour)
+		dataCache.Set(convUrl, res, time.Duration(cnf.CacheHours)*time.Hour)
 		//_, found := dataCache.Get(convUrl)
 		//log.Printf("[debug] dataCache: found=%v", found)
 
