@@ -8,7 +8,8 @@ services:
 
   subserver:
     container_name: subserver
-    image: registry.cn-beijing.aliyuncs.com/self-pub/subserver:latest
+    #image: registry.cn-beijing.aliyuncs.com/self-pub/subserver:latest
+    image: geeknonerd/subserver:latest
     restart: always
     tty: true
     volumes:
